@@ -1,0 +1,29 @@
+{
+  "name": "js_ai_agent",
+  "version": "1.0.0",
+  "description": "- Node.js & npm - MongoDB Atlas - OpenAI API Key -> To create embeddings - Anthropic API Key -> Conversations# JS_AI_Agent",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/express": "^5.0.0",
+    "@types/node": "^22.9.1",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.6.3"
+  },
+  "dependencies": {
+    "@langchain/anthropic": "^0.3.8",
+    "@langchain/langgraph": "^0.2.22",
+    "@langchain/langgraph-checkpoint-mongodb": "^0.0.4",
+    "@langchain/mongodb": "^0.1.0",
+    "dotenv": "^16.4.5",
+    "express": "^4.21.1",
+    "langchain": "^0.3.6",
+    "mongodb": "^6.10.0",
+    "zod": "^3.23.8"
+  }
+}
