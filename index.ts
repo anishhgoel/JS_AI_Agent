@@ -1,27 +1,56 @@
+import 'dotenv/config';
+import express, { Express, Request, Response } from "express";
+import { MongoClient } from "mongodb";
+import { callAgent } from './agent';
 
-const { MongoClient, ServerApiVersion } = require('mongodb');
-require('dotenv').config();
-const uri = process.env.MONGODB_ATLAS_URI;
+const app: Express = express();
+app.use(express.json());
 
-// Create a MongoClient with a MongoClientOptions object to set the Stable API version
-const client = new MongoClient(uri, {
-  serverApi: {
-    version: ServerApiVersion.v1,
-    strict: true,
-    deprecationErrors: true,
-  }
-});
+// Initialize MongoDB client
+const client = new MongoClient(process.env.MONGODB_ATLAS_URI as string);
 
-async function run() {
+async function startServer() {
   try {
-    // Connect the client to the server	(optional starting in v4.7)
     await client.connect();
-    // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
-  } finally {
-    // Ensures that the client will close when you finish/error
-    await client.close();
+
+    app.get('/', (req: Request, res: Response) => {
+      res.send('LangGraph Agent Server');
+    });
+
+    app.post('/chat', async (req: Request, res: Response) => {
+      const initialMessage = req.body.message;
+      const threadId = Date.now().toString(); 
+      try {
+        const response = await callAgent(client, initialMessage, threadId);
+        res.json({ threadId, response });
+      } catch (error) {
+        console.error('Error starting conversation:', error);
+        res.status(500).json({ error: 'Internal server error' });
+      }
+    });
+
+    app.post('/chat/:threadId', async (req: Request, res: Response) => {
+      const { threadId } = req.params;
+      const { message } = req.body;
+      try {
+        const response = await callAgent(client, message, threadId);
+        res.json({ response });
+      } catch (error) {
+        console.error('Error in chat:', error);
+        res.status(500).json({ error: 'Internal server error' });
+      }
+    });
+
+    const PORT = process.env.PORT || 3000;
+    app.listen(PORT, () => {
+      console.log(`Server running on port ${PORT}`);
+    });
+  } catch (error) {
+    console.error('Error connecting to MongoDB:', error);
+    process.exit(1);
   }
 }
-run().catch(console.dir);
+
+startServer();
